@@ -1,0 +1,6 @@
+sklearn
+numpy
+pandas
+matplotlib
+nest_asyncio
+python-telegram-bot
