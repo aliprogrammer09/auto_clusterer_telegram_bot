@@ -18,7 +18,7 @@ logging.basicConfig(
 )
 
 token = "YOUR_BOT_TOKEN"
-bot_username = "@testpoweryBot"
+bot_username = "@YOUR_BOT_USERNAME"
 
 
 
