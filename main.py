@@ -6,6 +6,8 @@ from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, filte
 import pandas as pd
 import os
 import model
+from zipfile import ZipFile
+
 
 
 
@@ -17,15 +19,15 @@ logging.basicConfig(
     level=logging.INFO
 )
 
-token = "YOUR_BOT_TOKEN"
-bot_username = "@YOUR_BOT_USERNAME"
+token = "8043857668:AAHIxdF0qUl3AtNfyWdtbkZnGmIuIRzidDY"
+bot_username = "@testAutoClustererBot"
 
 
 
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    text = " Hello, Welcome to bot! This bot is used for auto clustering.\n\nYou should give it 2 datasets, df_main.csv (the main dataset) and df_X.csv (the X part of dataset).\n\nPay attention, the file name must be exact same.\n\nWhen you upload files with the exact name, it automatically detects them and set them.\n\nThere is another option called pca, it lowers the number of features, it usually makes the model perform better and the other advantage is you can see the plot visually. If you turn on pca, you get the image of plot beside the model score. You should choose it with command /pca true or false, like: /pca true .\n\nWhen you set parameters (datasets and pca) you can run the model to predict (cluster) the dataset and it gives you a model score. You can run the model with /autoClusterer , it will take some time. in pca mode or when your X dataset has just 2 features, it gives you an image of the plot too.\n\nYou cannot change the parameters straightly, you should first delete the parameters first. You can delete all parameters with command /delete , You can specify a special parameter too like: /delete df_main.csv .\n\n You can know what parameters you have set by using /getStatuse ."
+    text = "Hello, Welcome to bot! This bot is used for auto clustering.\n\nYou should give it 2 datasets, df_main.csv (the main dataset) and df_X.csv (the X part of dataset).\n\nPay attention, the file name must be exact same.\n\nWhen you upload files with the exact name, it automatically detects them and set them.\n\nThere is another option called pca, it lowers the number of features, it usually makes the model perform better and the other advantage is you can see the plot visually. If you turn on pca, you get the image of plot beside clustered dataframes and the model score. You should choose it with command /pca true or false, like: /pca true .\n\nWhen you set parameters (datasets and pca) you can run the model to predict (cluster) the dataset and it gives you clustered seperated datasets and a model score. You can run the model with /autoClusterer , it will take some time, so, be patient. in pca mode or when your X dataset has just 2 features, it gives you an image of the plot too.\n\nYou cannot change the parameters straightly, you should first delete the parameters first. You can delete all parameters with command /delete , You can specify a special parameter too like: /delete df_main.csv .\n\n You can know what parameters you have set by using /getStatuse ."
 
     await context.bot.send_message(chat_id=update.effective_chat.id, text=text)
 
@@ -122,7 +124,7 @@ async def delete(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if delete_parameter == "" or delete_parameter == " ":
       for f in os.listdir('files'):
           os.remove(f"files/{f}")
-          await update.message.reply_text(text="All parameters are deleted successfully.")
+      await update.message.reply_text(text="All parameters are deleted successfully.")
 
 
     elif delete_parameter == "df_main.csv":
@@ -198,10 +200,17 @@ async def auto_clusterer(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
       model_score = model.autoClusterer(df_main, df_X, pca)
       image = 'results/images/plot.jpg'
+      with ZipFile('results/dfs/dfs.zip','w') as zip:
+        for f in os.listdir('results/dfs'):
+            if f.endswith(".csv"):
+                zip.write(f"results/dfs/{f}")
 
 
       with open(image, 'rb') as img:
-        await context.bot.send_photo(chat_id=update.effective_chat.id, photo=img)
+          await context.bot.send_photo(chat_id=update.effective_chat.id, photo=img)
+      with open('results/dfs/dfs.zip', 'rb') as f: 
+          await context.bot.send_document(chat_id=update.effective_chat.id, document=f)
+
       await update.message.reply_text(text=f"The score of model is {round(model_score *100, 3)}%")
 
 
