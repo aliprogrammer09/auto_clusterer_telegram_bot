@@ -19,8 +19,8 @@ logging.basicConfig(
     level=logging.INFO
 )
 
-token = "8043857668:AAHIxdF0qUl3AtNfyWdtbkZnGmIuIRzidDY"
-bot_username = "@testAutoClustererBot"
+token = "YOUR_BOT_TOKEN"
+bot_username = "@YOUR_BOT_USERNAME"
 
 
 
